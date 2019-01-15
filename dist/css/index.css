@@ -1,0 +1,10 @@
+body{
+	background: pink;
+	color:green;
+}
+.bgimg{
+	width: 300px;
+	height: 150px;
+	background-image:url(http://localhost:8888/images/4ee1eb1a0333ced40388a964aedc8f83.jpg);
+	background-size: 100%;
+}

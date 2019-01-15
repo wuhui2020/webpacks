@@ -1,0 +1,10 @@
+body{
+	background: pink;
+	color:green;
+}
+.bgimg{
+	width: 300px;
+	height: 150px;
+	background-image:url(./images/psb.jpg);
+	background-size: 100%;
+}

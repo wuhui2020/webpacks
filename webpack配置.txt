@@ -1,0 +1,182 @@
+	全部在cmd命令操作  基于webpack4.0以上版本 window webpack入门教程 
+						MAC 需要加sudo( sudo npm install webpack)
+首先 
+	webpack依赖node.js 先安装node.js  检查是否已安装node  window+r cmd node -v 回车 看见版本号 已安装(安装		node.js可以百度教程);
+	
+	安装webpack   npm install webpack webpack-cli webpack-dev-server -g    (-g表示全局安装)
+	如出现
+		+webpack@4.28.4(4.28.4表示安装版本号)
+		+webpack-cli@x.xx.x
+		+webpack-dev-server@x.xx.x 说明安装成功 
+	检查是否安装成功  webpack -v  有版本号说明安装成功
+	
+	创建一个文件夹（盘符和桌面都可以）（cd C:\Users\你的用户名\Desktop\xx 进入桌面）
+
+	mkdir config dist src  (创建三个文件夹)
+	
+	输入 npm init -y 文件夹出现package.json文件
+	
+	分别在dist文件夹内创建index.html   src内创建index.js
+
+	输入webpack  是将当前的内容进行一个简单的打包 (这时dist内是不是多了一个main.js)
+		这时也会出现黄色警告提示：是因为webpack有两种打包环境
+		1.开发环境  development  
+		2.生产环境  production  
+		打包的时候输入webpack --mode=development或者webpack --mode=production就不会出现
+	
+	现在删除dist内的index.js 和src内的index.js  我们来自已生成
+	
+	在config 文件夹创建webpack.dev.js  在src内新建main.js
+	
+	打开config.dev.js  在里面进行配置
+	--------start--------
+	const path = require("path");
+	module.exports={
+		mode:"development",
+		//入口文件配置
+		entry:{
+			main:'./src/main.js'
+		},
+
+		//出口文件配置
+		output:{
+			//打包的路径
+			path:path.resolve(__dirname,"../dist"),
+			//打包后的文件名
+			filename:"bundle.js"
+		}
+
+		//模块，例如解读css,图片如何转换，压缩
+		module:{},
+
+		//插件，用于生产模板和各项功能
+		plugins:[],
+
+		//配置webpack开发服务功能
+		devServer:{}
+
+	}
+	--------end--------
+	
+	现在不能执行webpack --mode="development" 命令会报错
+	
+	到package.json里出配置 找到 script  改成下面所示即可
+	"scripts": {
+    		"build": "webpack --config=config/webpack.dev.js"
+  	},
+	
+	现在就不用webpack --mode="development"命令了
+	改成 npm run buil就可以了
+
+	上面是一个入口文件  如果出现多个入口文件呢！
+	
+	在src 再新建main2.js
+
+	webpack.dev.js内的入口改成（就是加个入口文件）
+	entry:{
+		//里面的main是可以随便写的
+		main:'./src/main.js',
+		main2:'./src/main2.js'
+
+	},
+	
+	再进行打包 npm run build 会报错
+	ERROR in chunk main2[entry]....  
+	
+	这时我们要把出口修改下
+	filename:'bundle.js'这样是把出口文件写死了
+	改成   filename:'[name].js',	
+	注：[name]的意思是根据入口文件的名称，打包成相同的名称，有几个入口文件，就可以打包出几个文件
+	
+	再执行命令 npm run build  即可
+
+	配置 webpack-dev-server 刚开始已安装 所以不必再安装
+	要在webpack.dev配置下
+
+	//配置webpack开发服务功能
+	devServer:{
+		//设置基本目录结构
+		contentBase:path.resolve(__dirname,'../dist'),
+		//服务器的IP地址，可以使用IP也可以使用localhost
+		host:'localhost',
+		//服务端压缩是否开启
+		compress:true,
+		//配置服务器端口号
+		port:8888
+	}
+	
+	现在执行命令 webpack-dev-server  会报错
+	到package.json 配置   在script 加上 "server": "webpack-dev-server --config=config/webpack.dev.js"
+	
+	"scripts": {
+    		"build": "webpack --config=config/webpack.dev.js",
+    		"server": "webpack-dev-server --config=config/webpack.dev.js"
+ 	 },
+	
+	现在执行 npm run server 就OK
+	
+	在dist内index.html  写入<div id="webpack"></div>      引入main.js和main2.js
+	
+	在两个js 写入些东代码
+	如：main.js  写入alert("webpack")
+	main2.js  document.getElementById("webpack").innerHTML="hello world, hello webpack!";
+	
+	再执行 npm run server 	成功后在浏览器中输入http://localhost:8888 可看到弹框和写入的内容
+
+
+	CSS  文件打包
+	在src文件夹内新建index.css文件并给body些样式  body{background:red;color:#fff}
+	在src 的js文件内引入css  import css from './index.css'（./表示当前目录下）
+	
+	用css需要下载和配置 style-loader 和css-loader
+	npm install style-loader css-loader --save-dev
+	然后在webpack.dev.js内配置
+
+	//模块，例如解读css,图片如何转换，压缩
+	------配置css start------------------
+	module:{
+		rules:[
+			//css loader
+			{
+				test:/\.css$/,
+				use:[
+				 	{loader:"style-loader"},
+				 	{loader:"css-loader"}
+				 ]
+				
+			}
+			
+		]
+	},
+	------配置css end------------------
+	
+	执行npm run server
+	
+	打开浏览器  如有效果 css 配置成功
+
+
+
+	JS 压缩  uglifyjs-webpack-plugin  webpack 新版本已集成 不需下载安装
+	
+	首先在webpack.dev.js 引入 const uglify = require('uglifyjs-webpack-plugin');
+	然看在plugins内 new uglify()
+
+	//插件，用于生产模板和各项功能
+	plugins:[
+		//js压缩  ugligy 是插件，但是webpack版本默认集成了
+		new uglify()
+	],
+	运行npm run build 如提示 webpack-cli  Would you like to install webpack-cli (yes/no)
+	输入yes即可
+	
+	还有可能找不到uglifyjs-webpack-plugin 就需要下载 npm install uglifyjs-webpack-plugin --save-dev
+	
+	成功后可看到 dist内的main.js文件被压缩
+	
+	
+	
+	
+
+		
+		
+
