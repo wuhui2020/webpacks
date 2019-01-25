@@ -1,1 +1,1 @@
-linguist-language=webpacks
+*.js linguist-language=webpacks
